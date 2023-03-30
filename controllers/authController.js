@@ -52,17 +52,15 @@ const authController = {
   loginUser: async (req, res) => {
     try {
       const user = await User.findOne({ username: req.body.username });
-      if (!user) {
-        res.status(404).json("Incorrect username");
-      }
       const validPassword = await bcrypt.compare(
         req.body.password,
         user.password
       );
-      if (!validPassword) {
+      if (!user) {
+        res.status(404).json("Incorrect username");
+      } else if (!validPassword) {
         res.status(404).json("Incorrect password");
-      }
-      if (user && validPassword) {
+      } else if (user && validPassword) {
         //Generate access token
         const accessToken = authController.generateAccessToken(user);
         //Generate refresh token
@@ -71,7 +69,7 @@ const authController = {
         //STORE REFRESH TOKEN IN COOKIE
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
-          secure:false,
+          secure: false,
           path: "/",
           sameSite: "strict",
         });
@@ -102,7 +100,7 @@ const authController = {
       refreshTokens.push(newRefreshToken);
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure:false,
+        secure: false,
         path: "/",
         sameSite: "strict",
       });
